@@ -1,4 +1,4 @@
-# Whisfood
+# WishFood
 
 
 **Can't decide what to eat?** MoodBite is a full-stack food recommendation web app.
