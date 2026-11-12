@@ -1,4 +1,5 @@
-# MoodBite
+# Whisfood
+
 
 **Can't decide what to eat?** MoodBite is a full-stack food recommendation web app.
 Tell it your mood, the ingredients you have, or just type what you feel like
