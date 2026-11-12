@@ -244,3 +244,15 @@ export function deleteHistoryItem(id) {
 export function clearHistory() {
   return request('/history', { method: 'DELETE' })
 }
+
+// ===== Smart recommendations (Stage 6) =====
+
+// POST /api/ai/recommend
+//   { message }               -> MoodBite reads what the user typed
+//   { message, preferences }  -> after "Edit Preferences" (skip reading)
+// Returns { understood, parser, parsed_preferences, recommendations,
+//           savedToHistory, message }
+export function smartRecommend({ message, preferences }) {
+  const body = preferences ? { message, preferences } : { message }
+  return request('/ai/recommend', { method: 'POST', body })
+}

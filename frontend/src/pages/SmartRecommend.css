@@ -1,0 +1,39 @@
+.smart-page .smart-input {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.smart-page__results {
+  margin-top: 36px;
+}
+
+.smart-page__matches-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.smart-page__matches-top h2 {
+  font-size: 1.5rem;
+}
+
+/* The shared "Saved to History" note has a negative margin on the results
+   page; here it sits next to the heading instead. */
+.smart-page__matches-top .results__saved {
+  margin: 0;
+}
+
+.smart-page__switch {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+}
+
+.smart-page__switch a {
+  color: var(--color-primary);
+  font-weight: 600;
+}

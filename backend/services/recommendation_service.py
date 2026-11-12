@@ -14,6 +14,11 @@ Step 2 - SCORE every food that is left:
     Fits the time limit ...................... +2
     Fits the budget .......................... +1
     Fits the dietary preferences ............. +3
+  Stage 6 extras (only when the user typed a message):
+    Matches the cuisine they named ........... +2   ("Korean")
+    Matches a dish they asked for ............ +3   ("noodles")
+    Each ingredient they have that the
+    recipe uses .............................. +1   ("I have chicken, rice")
 
 Step 3 - sort by score (highest first) and return the top 3.
 Because we sort instead of demanding a perfect match, the user always
@@ -22,6 +27,7 @@ gets the CLOSEST foods, even if nothing ticks every box.
 
 from models import food_to_dict
 from services.explanation_service import build_explanation, build_popular_explanation
+from services.nlp_service import food_is_dish, recipe_uses
 
 POINTS = {
     "mood": 3,
@@ -30,6 +36,9 @@ POINTS = {
     "time": 2,
     "budget": 1,
     "dietary": 3,
+    "cuisine": 2,
+    "dish": 3,  # asking for a dish counts like a craving
+    "ingredient": 1,
 }
 
 VALID_MOODS = ["happy", "tired", "sad", "stressed", "excited", "unsure"]
@@ -91,6 +100,12 @@ def clean_answers(data):
         "time": data.get("time"),  # max minutes, or None = no limit
         "budget": None if budget == "any" else budget,
         "dietary": [d for d in data.get("dietary", []) if d != "none"],
+        # Stage 6 extras (empty for the Quick Questions)
+        "cuisine": data.get("cuisine"),
+        "dishes": data.get("dishes", []),
+        "ingredients": data.get("ingredients", []),
+        "craving_words": data.get("craving_words", {}),
+        "smart": bool(data.get("smart")),  # changes the explanation wording
     }
 
 
@@ -155,6 +170,15 @@ def score_food(food, answers):
     if follows_dietary(food, answers["dietary"]):
         score += POINTS["dietary"]  # always true here, because of Step 1
 
+    # Stage 6 extras
+    cuisine_match = bool(answers["cuisine"]) and food["cuisine"] == answers["cuisine"]
+    matched_dishes = [dish for dish in answers["dishes"] if food_is_dish(food, dish)]
+    matched_ingredients = [item for item in answers["ingredients"] if recipe_uses(food, item)]
+    if cuisine_match:
+        score += POINTS["cuisine"]
+    score += len(matched_dishes) * POINTS["dish"]
+    score += len(matched_ingredients) * POINTS["ingredient"]
+
     # "Perfect match" = right mood, at least one craving (if any were
     # picked), and within time and budget.
     is_perfect_match = (
@@ -168,6 +192,9 @@ def score_food(food, answers):
         "matched_preferences": matched_preferences,
         "checks": checks,
         "is_perfect_match": is_perfect_match,
+        "cuisine_match": cuisine_match,
+        "matched_dishes": matched_dishes,
+        "matched_ingredients": matched_ingredients,
     }
 
 
@@ -182,16 +209,14 @@ def get_popular_picks(foods, limit):
     ]
 
 
-def get_recommendations(foods, data, limit=3):
-    """foods: list of food documents (dictionaries) from MongoDB.
-    data:  the JSON body sent by React (already checked by find_request_error).
-    Returns a list of up to `limit` food dictionaries, each with
-    score, isPerfectMatch, and reason added."""
-    if data.get("surprise"):
-        return get_popular_picks(foods, limit)
+def rank_foods(foods, answers, limit=3):
+    """The engine itself: filter, score, sort. Used by the Quick Questions
+    (get_recommendations below) AND by the smart, typed-message feature
+    (routes/ai_routes.py), so both always follow the same rules.
 
-    answers = clean_answers(data)
-
+    foods:   food documents from MongoDB (with "recipe" if ingredients matter)
+    answers: the output of clean_answers()
+    """
     # Step 1: remove foods that can't work
     allowed = [
         food for food in foods
@@ -211,7 +236,18 @@ def get_recommendations(foods, data, limit=3):
             **food_to_dict(food),
             "score": result["score"],
             "isPerfectMatch": result["is_perfect_match"],
+            "matchedIngredients": result["matched_ingredients"],
             "reason": build_explanation(food, answers, result),
         }
         for food, result in scored[:limit]
     ]
+
+
+def get_recommendations(foods, data, limit=3):
+    """foods: list of food documents (dictionaries) from MongoDB.
+    data:  the JSON body sent by React (already checked by find_request_error).
+    Returns a list of up to `limit` food dictionaries, each with
+    score, isPerfectMatch, and reason added."""
+    if data.get("surprise"):
+        return get_popular_picks(foods, limit)
+    return rank_foods(foods, clean_answers(data), limit)

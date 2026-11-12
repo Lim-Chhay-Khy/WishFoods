@@ -12,7 +12,9 @@ import './FoodCard.css'
 //             comes from the recommendation engine)
 //   onRemove: optional — when given (Favorites page), shows a
 //             "Remove Favorite" button instead of the Save button
-export default function FoodCard({ food, onRemove }) {
+//   cookLabel / restaurantLabel: optional button text (Stage 6 uses
+//             "View Recipe" and "Find Nearby")
+export default function FoodCard({ food, onRemove, cookLabel = 'Cook', restaurantLabel = 'Find Restaurant' }) {
   const navigate = useNavigate()
   const timeText = food.cookingTime === null ? 'Eat out' : `${food.cookingTime} min`
 
@@ -42,6 +44,9 @@ export default function FoodCard({ food, onRemove }) {
         </dl>
 
         <DietaryTags tags={food.dietary} />
+        {food.matchedIngredients?.length > 0 && (
+          <p className="food-card__uses">🧺 Uses your {food.matchedIngredients.join(', ')}</p>
+        )}
         <RecommendationReason reason={food.reason} />
 
         <div className="card__actions">
@@ -51,7 +56,7 @@ export default function FoodCard({ food, onRemove }) {
             title={food.canCook ? 'See the recipe' : 'This dish is restaurant-only'}
             onClick={() => navigate(`/recipe/${food.id}`)}
           >
-            Cook
+            {cookLabel}
           </Button>
           <Button
             variant="outline"
@@ -59,7 +64,7 @@ export default function FoodCard({ food, onRemove }) {
             title={food.availableAtRestaurant ? 'See restaurants' : 'This dish is home-cooked only'}
             onClick={() => navigate(`/restaurants/${food.id}`)}
           >
-            Find Restaurant
+            {restaurantLabel}
           </Button>
           {onRemove ? (
             <Button variant="outline" onClick={onRemove}>

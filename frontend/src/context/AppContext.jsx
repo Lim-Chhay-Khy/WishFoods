@@ -25,6 +25,10 @@ export function AppProvider({ children }) {
   const [budget, setBudget] = useState(null) // id from BUDGET_OPTIONS
   const [dietary, setDietary] = useState([]) // ids from DIETARY_OPTIONS
 
+  // Stage 6: the last typed request and its results, so going to a recipe
+  // and pressing Back shows the same results again.
+  const [smartSession, setSmartSession] = useState(null) // { message, result }
+
   function resetSelections() {
     setMood(null)
     setPreferences([])
@@ -79,6 +83,8 @@ export function AppProvider({ children }) {
     toggleDietary,
     resetSelections,
     loadAnswers,
+    smartSession,
+    setSmartSession,
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

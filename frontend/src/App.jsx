@@ -7,6 +7,7 @@ import MoodSelect from './pages/MoodSelect.jsx'
 import PreferenceSelect from './pages/PreferenceSelect.jsx'
 import CookOrRestaurant from './pages/CookOrRestaurant.jsx'
 import Results from './pages/Results.jsx'
+import SmartRecommend from './pages/SmartRecommend.jsx'
 import RecipeDetails from './pages/RecipeDetails.jsx'
 import Restaurants from './pages/Restaurants.jsx'
 import Favorites from './pages/Favorites.jsx'
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/preferences" element={<PreferenceSelect />} />
             <Route path="/choice" element={<CookOrRestaurant />} />
             <Route path="/recommendations" element={<Results />} />
+            <Route path="/smart-recommend" element={<SmartRecommend />} />
             <Route path="/recipe/:id" element={<RecipeDetails />} />
             <Route path="/restaurants/:foodId" element={<Restaurants />} />
             <Route path="/about" element={<About />} />

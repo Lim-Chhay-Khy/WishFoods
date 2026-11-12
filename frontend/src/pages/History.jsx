@@ -20,8 +20,14 @@ export default function History() {
   const [cleared, setCleared] = useState(false)
   const [actionError, setActionError] = useState('')
 
-  // Put the old answers back into AppContext and show the results again.
+  // Show the results again:
+  //  - typed (smart) sessions run the message again on the Smart page
+  //  - Quick Questions sessions put the old answers back into AppContext
   function handleViewAgain(entry) {
+    if (entry.source === 'smart' && entry.originalMessage) {
+      navigate('/smart-recommend', { state: { message: entry.originalMessage, autoSubmit: true } })
+      return
+    }
     loadAnswers(entry)
     navigate('/recommendations')
   }

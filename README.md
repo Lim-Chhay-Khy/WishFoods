@@ -13,10 +13,12 @@ and it recommends three meals and explains why.
 - JWT login tokens (PyJWT) + Werkzeug password hashing
 - Google Places API (New) + Maps JavaScript API (`@vis.gl/react-google-maps`)
 - MongoDB (with PyMongo)
+- Natural Language Processing: a keyword parser in Python (+ optional Claude API)
 - REST API (JSON)
 
 ## Features
 
+- **Smart recommendations: describe what you want in your own words**
 - Mood-based meal recommendations
 - Food preference filtering
 - Budget filtering
@@ -268,6 +270,7 @@ twice when two identical requests arrive at the same moment.
 | GET | `/api/foods/<id>/recipe` | `{"food": {...}, "recipe": {...}}` | 404 `Food not found` / `Recipe not found` |
 | GET | `/api/foods/<id>/restaurants` | `{"food": {...}, "restaurants": [...]}` (may be empty) | 404 `Food not found` |
 | GET | `/api/restaurants` | `{"restaurants": [...]}` | 500 |
+| POST | `/api/ai/recommend` | `{"understood", "parser", "parsed_preferences", "recommendations", "savedToHistory"}` | 400 empty / too long |
 | POST | `/api/recommendations` | `{"recommendations": [...], "savedToHistory": true/false}` (top 3) | 400 bad request |
 
 | GET | `/api/foods/<id>/nearby?lat=&lng=` or `?near=` | `{"food", "source": "google"/"sample", "message", "center", "restaurants"}` | 400 bad location, 404 food |
@@ -340,6 +343,81 @@ More bodies to try:
 | `budget` | `$`, `$$`, `$$$`, `any` |
 | `dietary` | list: `vegetarian`, `vegan`, `halal`, `no-seafood`, `dairy-free` |
 
+## Smart Food Recommendation (Stage 6)
+
+Users can describe what they want using natural language:
+
+```text
+"I'm tired, I have $20, and I want something spicy nearby."
+```
+
+MoodBite extracts preferences and uses the recommendation system to find
+matching meals. It combines:
+
+```text
+Natural Language Processing  +  Rule-Based Recommendation  +  Restaurant Discovery
+```
+
+```
+User message ──▶ parser (keywords, or AI if turned on) ──▶ structured answers
+             ──▶ the SAME engine as the Quick Questions ──▶ 3 foods + reasons
+             ──▶ View Recipe (Stage 2) or Find Nearby (Stage 5 map)
+```
+
+The parser **only fills in the answers**. The recommendation engine still
+does all the filtering and scoring, so dietary rules are always strict.
+
+### What the keyword parser looks for (`backend/services/nlp_service.py`)
+
+| Answer | Example words | Becomes |
+|---|---|---|
+| Mood | tired, exhausted, stressed, busy, sad, feeling down, happy, excited | `mood` |
+| Cravings | warm/cozy → comfort, spicy/hot, healthy/fresh, light/"not too heavy", filling, protein/gym, sweet/dessert | `preferences` |
+| Budget | "under $15", "20 dollars", cheap, fancy | `$` ≤ $15, `$$` ≤ $30, `$$$` more (change in `.env`) |
+| Time | "20 minutes", "an hour", quick | 15 / 30 / 60 minutes, or none |
+| Dietary | vegetarian, vegan, halal, no seafood, dairy free | strict filter |
+| Cook or eat out | "don't want to cook", nearby, restaurant → restaurant; cook, recipe, "I have..." → cook | `choice` |
+| Cuisine | Korean, Thai, Indian, Italian, Khmer... | +2 points |
+| Dish | noodles, soup, curry, pizza, sushi... | +3 points |
+| Ingredients | "I **have** chicken, rice and eggs" | +1 point per ingredient the recipe uses |
+
+**Negation:** a word right after "not / no / don't / without..." is
+skipped, so "not spicy" doesn't add spicy, and "I'm not vegetarian" doesn't
+add a vegetarian filter. The first mood mentioned wins.
+
+### "MoodBite understood"
+
+The page shows what was understood (mood, cravings, budget...). **Edit
+Preferences** opens the Quick Questions buttons so the user can fix anything;
+the corrected answers go to the same endpoint.
+
+### Optional AI parser (`backend/services/ai_service.py`)
+
+Off by default. Add `AI_API_KEY=<Anthropic API key>` to `backend/.env` to
+let Claude read messages instead of keywords. Rules:
+
+- React never calls the AI. Flask does, and the key lives only in `.env`.
+- The AI only returns the same JSON fields. Every value is checked against
+  our known lists (`sanitize_preferences`), and unknown values are dropped.
+- Only the message is sent, with emails and phone numbers removed.
+- If the AI fails for any reason, the keyword parser is used automatically.
+
+### Privacy
+
+For logged-in users, History stores the typed message (`original_message`)
+**separately** from the parsed answers, after removing anything that looks
+like an email or phone number. Messages from logged-out users are never saved.
+
+### Testing `POST /api/ai/recommend`
+
+```json
+{ "message": "I'm happy and want spicy Korean food under $25." }
+```
+
+Returns `understood`, `parser` (`keywords` / `ai` / `edited`),
+`parsed_preferences`, `recommendations`, and `savedToHistory`.
+Empty message → 400. Text with nothing useful → `understood: false`.
+
 ## How Login Works
 
 1. **Register.** Flask checks the name, email and password, then saves
@@ -386,5 +464,20 @@ More bodies to try:
 
 ## What's Next
 
-- **Stage 6:** Free-text mood input ("I'm tired and only have $15") parsed
-  by an NLP model.
+- Deploy online (Vercel + Render + MongoDB Atlas) for a live demo link.
+- Automated tests (pytest for the parser and engine) run on every push.
+- Learn from history: boost foods the user saved or chose before.
+
+## Interview Summary
+
+> MoodBite is a full-stack meal recommender built with React, Flask, and
+> MongoDB. Users can answer a few quick questions or just describe what they
+> want, like "I'm tired, I have $15, and I want something warm nearby." The
+> Flask backend turns that sentence into structured preferences with a
+> keyword-based NLP parser (or, optionally, an AI model with the keyword
+> parser as a fallback), and passes them to my rule-based recommendation
+> engine, which filters by dietary needs and scores foods by mood, cravings,
+> time, budget, and ingredients the user has. Each result comes with a
+> plain-language explanation and links to a recipe or nearby restaurants from
+> the Google Places API. Users can log in with JWT authentication to save
+> favorites and see their recommendation history.

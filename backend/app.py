@@ -9,6 +9,7 @@ from pymongo.errors import PyMongoError
 
 from config import Config
 from database import create_indexes
+from routes.ai_routes import ai_routes
 from routes.auth_routes import auth_routes
 from routes.favorite_routes import favorite_routes
 from routes.food_routes import food_routes
@@ -49,6 +50,7 @@ app.register_blueprint(favorite_routes)  # Stage 4
 app.register_blueprint(history_routes)  # Stage 4
 app.register_blueprint(profile_routes)  # Stage 4
 app.register_blueprint(places_routes)  # Stage 5
+app.register_blueprint(ai_routes)  # Stage 6
 
 # Make sure the indexes exist (unique emails, no duplicate favorites).
 # If MongoDB can't be reached yet, start anyway — the database error

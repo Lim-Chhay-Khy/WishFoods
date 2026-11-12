@@ -39,3 +39,9 @@
   font-weight: 600;
   font-size: 0.9rem;
 }
+
+.food-card__uses {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-secondary-dark);
+}

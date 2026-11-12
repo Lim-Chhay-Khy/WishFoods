@@ -1,9 +1,11 @@
 .home {
   min-height: calc(100vh - 64px);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px 24px;
+  gap: 56px;
+  padding: 48px 24px 72px;
 }
 
 .home__hero {
@@ -35,4 +37,36 @@
   margin-top: 12px;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+/* Stage 6: the "Tell MoodBite" box under the hero */
+.home__smart {
+  width: 100%;
+  max-width: 680px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 30px var(--color-card-shadow);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.home__smart h2 {
+  font-size: 1.45rem;
+}
+
+.home__smart > p {
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+@media (max-width: 560px) {
+  .home {
+    padding: 32px 16px 56px;
+  }
+
+  .home__smart {
+    padding: 22px 18px;
+  }
 }

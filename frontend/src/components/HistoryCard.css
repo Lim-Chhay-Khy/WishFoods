@@ -34,3 +34,11 @@
   flex-direction: column;
   gap: 2px;
 }
+
+/* Stage 6: what the user typed */
+.history-card__message {
+  font-style: italic;
+  color: var(--color-text-muted);
+  border-left: 3px solid var(--color-primary);
+  padding-left: 10px;
+}

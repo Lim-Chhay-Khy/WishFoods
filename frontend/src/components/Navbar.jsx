@@ -8,7 +8,7 @@ import './Navbar.css'
 const DISCOVER = {
   label: 'Discover',
   to: '/mood',
-  matches: ['/mood', '/preferences', '/choice', '/recommendations', '/recipe', '/restaurants'],
+  matches: ['/mood', '/preferences', '/choice', '/recommendations', '/smart-recommend', '/recipe', '/restaurants'],
 }
 const HOME = { label: 'Home', to: '/', matches: ['/'] }
 

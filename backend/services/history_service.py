@@ -17,6 +17,7 @@ answers + 30-minute time slot), and a UNIQUE index on it makes MongoDB
 itself refuse the second copy.
 """
 
+import re
 import time
 from datetime import datetime, timedelta, timezone
 
@@ -27,13 +28,25 @@ from database import db
 SAME_SESSION_MINUTES = 30
 
 ANSWER_FIELDS = ["mood", "preferences", "choice", "time", "budget", "dietary"]
+# Stage 6: extra answers that only typed (smart) requests have.
+SMART_FIELDS = ["cuisine", "ingredients", "dishes"]
+MAX_MESSAGE_LENGTH = 300
+
+
+def remove_personal_info(message):
+    """Privacy (Stage 6): before saving a typed message, blank out things
+    that look like email addresses or phone numbers, and cut it short.
+    The message only helps the user remember the session."""
+    message = re.sub(r"[\w.+-]+@[\w-]+\.[\w.]+", "[email removed]", message)
+    message = re.sub(r"\+?\d[\d\s().-]{6,}\d", "[number removed]", message)
+    return message.strip()[:MAX_MESSAGE_LENGTH]
 
 
 def answers_text(answers):
     """The answers as one piece of text, e.g. "tired|comfort|cook|30|$|".
     Lists are sorted, so the order of clicks doesn't matter."""
     parts = []
-    for field in ANSWER_FIELDS:
+    for field in ANSWER_FIELDS + SMART_FIELDS + ["original_message"]:
         value = answers.get(field)
         parts.append(",".join(sorted(value)) if isinstance(value, list) else str(value))
     return "|".join(parts)
@@ -57,16 +70,25 @@ def is_repeat_of_last_session(user_id, answers):
     return last["created_at"].replace(tzinfo=timezone.utc) > cutoff
 
 
-def save_history(user, answers, recommendations):
+def save_history(user, answers, recommendations, original_message=None):
     """user: the user document. answers: the cleaned answers from
-    clean_answers(). recommendations: the list returned to React."""
+    clean_answers(). recommendations: the list returned to React.
+    original_message: what the user typed (smart requests only).
+
+    The typed message and the parsed answers are stored in SEPARATE fields
+    ("original_message" vs. mood/preferences/...), as the spec asks."""
+    answers = dict(answers)
+    answers["original_message"] = remove_personal_info(original_message) if original_message else None
     if not recommendations or is_repeat_of_last_session(user["_id"], answers):
         return
 
     try:
         db.history.insert_one({
             "user_id": user["_id"],
+            "source": "smart" if original_message else "questions",
+            "original_message": answers["original_message"],
             **{field: answers[field] for field in ANSWER_FIELDS},
+            **{field: answers.get(field) for field in SMART_FIELDS},
             "recommended_foods": [
                 {"id": food["id"], "name": food["name"], "emoji": food["emoji"], "score": food["score"]}
                 for food in recommendations

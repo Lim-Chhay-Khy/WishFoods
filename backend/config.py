@@ -45,3 +45,15 @@ class Config:
     GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "").strip()
     # How far around the user to look, in metres (5000 = 5 km).
     PLACES_SEARCH_RADIUS_M = int(os.getenv("PLACES_SEARCH_RADIUS_M", "5000"))
+
+    # ----- Stage 6: smart (natural-language) recommendations -----
+    # How a dollar amount in a message becomes a budget level:
+    #   up to $15 -> "$",  up to $30 -> "$$",  more -> "$$$"
+    BUDGET_CHEAP_MAX = float(os.getenv("BUDGET_CHEAP_MAX", "15"))
+    BUDGET_MODERATE_MAX = float(os.getenv("BUDGET_MODERATE_MAX", "30"))
+
+    # OPTIONAL external AI parser (services/ai_service.py). Leave AI_API_KEY
+    # empty to use only the free keyword parser (services/nlp_service.py).
+    AI_API_KEY = os.getenv("AI_API_KEY", "").strip()
+    AI_MODEL = os.getenv("AI_MODEL", "claude-haiku-5-5").strip()
+
