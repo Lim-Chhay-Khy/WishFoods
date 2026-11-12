@@ -9,10 +9,11 @@
 .navbar__inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 18px 24px;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
 }
 
 .navbar__logo {
@@ -25,18 +26,8 @@
 
 .navbar__links {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 8px 24px;
-}
-
-/* The Logout button looks like the other links. */
-.navbar__logout {
-  background: none;
-  border: none;
-  padding: 0;
-  font-family: inherit;
-  cursor: pointer;
+  gap: 4px;
 }
 
 .navbar__link {
@@ -44,26 +35,83 @@
   color: var(--color-text-muted);
   font-weight: 500;
   font-size: 0.95rem;
+  min-height: 44px; /* easy to tap */
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
 }
 
+/* The Logout button looks like the other links. */
+.navbar__logout {
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Active link: color AND an underline, so it doesn't rely on color alone. */
 .navbar__link--active {
   color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
 }
 
 .navbar__link:hover {
   color: var(--color-primary);
 }
 
-@media (max-width: 560px) {
+/* The ☰ button is hidden on big screens. */
+.navbar__toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+/* ----- Small screens: links move into a drop-down menu ----- */
+@media (max-width: 760px) {
   .navbar__inner {
-    flex-wrap: wrap;
+    padding: 10px 16px;
+    position: relative;
+  }
+
+  .navbar__toggle {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    gap: 8px 16px;
-    padding: 12px 16px;
   }
 
   .navbar__links {
-    justify-content: center;
-    gap: 6px 16px;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 8px 16px 16px;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 12px 24px var(--color-card-shadow);
+  }
+
+  .navbar__links--open {
+    display: flex;
+  }
+
+  .navbar__link {
+    font-size: 1.05rem;
+    padding: 0 8px;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 0;
+    text-align: left;
   }
 }

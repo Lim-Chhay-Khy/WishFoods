@@ -45,3 +45,10 @@
   font-weight: 600;
   color: var(--color-secondary-dark);
 }
+
+.food-card__origin {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-top: -6px;
+}

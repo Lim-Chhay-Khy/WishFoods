@@ -26,7 +26,13 @@ if Config.MONGODB_URI.startswith("mongodb+srv://"):
 # up the cluster name immediately, so a typo in MONGODB_URI (or no internet)
 # fails here. We stop with a short message instead of a long traceback.
 try:
-    client = MongoClient(Config.MONGODB_URI, **connection_options)
+    if Config.MONGODB_URI.startswith("mongomock://"):
+        # Only for the automated tests (backend/tests): a fake MongoDB that
+        # lives in memory, so tests never touch your real data.
+        import mongomock
+        client = mongomock.MongoClient()
+    else:
+        client = MongoClient(Config.MONGODB_URI, **connection_options)
 except ConfigurationError as error:
     raise SystemExit(
         f"\nCan't use the MONGODB_URI in backend/.env: {error}\n"

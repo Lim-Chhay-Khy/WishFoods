@@ -1,20 +1,31 @@
 """
 Fills MongoDB with the sample data from seed_data.py.
 
-    python seed.py
+    python seed.py           add the sample foods and restaurants
+    python seed.py --demo    ...and also create the demo account
+
+The demo account (demo@moodbite.app) is only created with --demo, and its
+password comes from DEMO_PASSWORD in backend/.env, never from the code.
 
 WARNING: it DELETES the existing foods and restaurants first, so running
 it again always gives you a fresh copy of the sample data.
 Users, favorites and history are NOT touched, so accounts stay safe.
 """
 
+import os
 import sys
+from datetime import datetime, timezone
 
 from pymongo.errors import OperationFailure, ServerSelectionTimeoutError
+
+from werkzeug.security import generate_password_hash
 
 from config import Config
 from database import client, create_indexes, db
 from seed_data import FOODS, RECIPES, RESTAURANTS
+from services.validation_service import find_password_error
+
+DEMO_EMAIL = "demo@moodbite.app"
 
 
 def build_foods():
@@ -90,5 +101,26 @@ def seed():
     )
 
 
+def create_demo_account():
+    """Creates (or resets) the demo login, using DEMO_PASSWORD from .env."""
+    password = os.getenv("DEMO_PASSWORD", "")
+    error = find_password_error(password)
+    if error:
+        print(f"Skipped the demo account: set DEMO_PASSWORD in backend/.env. ({error})")
+        return
+
+    db.users.update_one(
+        {"email": DEMO_EMAIL},
+        {
+            "$set": {"name": "Demo User", "password_hash": generate_password_hash(password)},
+            "$setOnInsert": {"email": DEMO_EMAIL, "created_at": datetime.now(timezone.utc)},
+        },
+        upsert=True,  # create it if it doesn't exist yet
+    )
+    print(f"Demo account ready: {DEMO_EMAIL} (password = DEMO_PASSWORD in your .env)")
+
+
 if __name__ == "__main__":
     seed()
+    if "--demo" in sys.argv:
+        create_demo_account()

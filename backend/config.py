@@ -25,10 +25,17 @@ class Config:
     MONGODB_URI = _get_mongo_uri()
     # The database name. MongoDB creates it automatically the first time
     # seed.py saves data into it — no "CREATE DATABASE" needed.
+    # Changing this name points the app at a NEW, empty database, so keep
+    # "Moodbite" to keep every account, favorite and history entry.
     MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "Moodbite").strip() or "Moodbite"
 
+    # The website(s) allowed to call this API (CORS). Separate several
+    # with commas, e.g. "http://localhost:5173,https://moodbite.vercel.app".
     FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    FRONTEND_URLS = [url.strip().rstrip("/") for url in FRONTEND_URL.split(",") if url.strip()]
     PORT = int(os.getenv("PORT", "5000"))
+    # Development extras (auto-restart, detailed errors). Never on in production.
+    DEBUG = os.getenv("FLASK_DEBUG", "1") == "1"
 
     # ----- Stage 4: login -----
     # Flask's own secret key (Flask uses it to sign cookies/sessions).

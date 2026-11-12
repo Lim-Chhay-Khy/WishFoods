@@ -1,7 +1,8 @@
 .back-button {
   background: none;
   border: none;
-  padding: 6px 0;
+  padding: 10px 0;
+  min-height: 44px; /* easy to tap */
   margin-bottom: 20px;
   font-size: 0.95rem;
   font-weight: 600;

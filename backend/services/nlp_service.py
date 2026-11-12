@@ -56,13 +56,27 @@ CUISINE_KEYWORDS = {
     "Japanese": ["japanese"],
     "Thai": ["thai"],
     "Chinese": ["chinese"],
+    "Vietnamese": ["vietnamese"],
     "Indian": ["indian"],
     "Italian": ["italian"],
+    "Greek": ["greek"],
+    "Mexican": ["mexican"],
     "Khmer": ["khmer", "cambodian"],
     "Middle Eastern": ["middle eastern", "lebanese", "mediterranean"],
+    "African": ["african", "nigerian", "west african"],
+    "Latin American": ["latin american", "latin", "south american", "venezuelan", "brazilian"],
+    "Canadian": ["canadian"],
     "Western": ["western", "american"],
 }
-ASIAN_CUISINES = ["Korean", "Japanese", "Thai", "Chinese", "Indian", "Khmer"]
+# A cuisine matches a food if any of these equals the food's cuisine,
+# country, or region (e.g. "African" matches every food from Africa).
+CUISINE_MATCHES = {
+    "Middle Eastern": ["Middle Eastern", "Middle East"],
+    "African": ["Africa"],
+    "Latin American": ["Latin America"],
+    "Western": ["Western", "North America"],
+}
+ASIAN_CUISINES = ["Korean", "Japanese", "Thai", "Chinese", "Vietnamese", "Indian", "Khmer"]
 
 # Dietary phrases are checked BEFORE negation, because many of them
 # contain "no" on purpose ("no seafood").
@@ -209,11 +223,21 @@ def detect_cuisine(text):
     return None
 
 
+# Dietary words are only negated by "not" right before them ("I'm not
+# vegan", "not really vegetarian"). A wider check would wrongly let the
+# "no" in "no seafood and dairy free" cancel "dairy free".
+DIETARY_NEGATION = re.compile(r"\b(not|isn't|don't need|no need for)\s+(\w+\s+)?$")
+
+
+def is_dietary_negated(text, position):
+    before = re.split(r"[.,!?;]|\band\b|\bbut\b", text[max(0, position - 30):position])[-1]
+    return bool(DIETARY_NEGATION.search(before))
+
+
 def detect_dietary(text):
     found = []
     for restriction, phrases in DIETARY_KEYWORDS.items():
-        # skip "I'm not vegetarian", but keep "no seafood"
-        if any(not is_negated(text, position) or phrase.startswith(("no ", "without", "don't", "dont"))
+        if any(not is_dietary_negated(text, position)
                for phrase in phrases for position in find_all(text, phrase)):
             found.append(restriction)
     return found
@@ -423,3 +447,9 @@ def food_is_dish(food, dish):
     _, food_words = DISHES.get(dish, ([], [dish]))
     text = f"{food['name']} {food['description']}".lower()
     return mentions(text, food_words, skip_negated=False)
+
+
+def food_matches_cuisine(food, cuisine):
+    """Does this food fit the cuisine the user named?"""
+    targets = CUISINE_MATCHES.get(cuisine, [cuisine])
+    return any(value in targets for value in (food.get("cuisine"), food.get("country"), food.get("region")))

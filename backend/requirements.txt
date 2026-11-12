@@ -5,3 +5,4 @@ python-dotenv==1.2.3
 certifi
 PyJWT==2.15.0
 requests==2.34.2
+gunicorn==23.0.0

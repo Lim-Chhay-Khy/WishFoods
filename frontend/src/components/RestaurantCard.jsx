@@ -10,6 +10,13 @@ const SERVICES = [
   { key: 'delivery', label: 'Delivery' },
 ]
 
+// Google Maps directions from the user's current location to this place.
+function directionsUrl(restaurant) {
+  const destination = encodeURIComponent(`${restaurant.name}, ${restaurant.address}`)
+  const placePart = restaurant.placeId ? `&destination_place_id=${encodeURIComponent(restaurant.placeId)}` : ''
+  return `https://www.google.com/maps/dir/?api=1&destination=${destination}${placePart}`
+}
+
 // "Open now" / "Closed now" for Google restaurants, or the hours text for samples.
 function hoursText(restaurant) {
   if (restaurant.openNow === true) return 'Open now'
@@ -51,6 +58,7 @@ export default function RestaurantCard({ restaurant, number, onRemove }) {
           )}
         </div>
         {subtitle.length > 0 && <p className="restaurant-card__subtitle">{subtitle.join(' · ')}</p>}
+        {!isGoogle && <p className="restaurant-card__sample">Sample restaurant (demo data)</p>}
 
         <ul className="restaurant-card__details">
           {restaurant.address && <li>📍 {restaurant.address}</li>}
@@ -70,9 +78,14 @@ export default function RestaurantCard({ restaurant, number, onRemove }) {
         )}
 
         <div className="card__actions">
+          {isGoogle && !restaurant.unavailable && (
+            <a className="btn btn--secondary" href={directionsUrl(restaurant)} target="_blank" rel="noopener noreferrer">
+              Directions<span className="visually-hidden"> to {restaurant.name} (opens Google Maps)</span>
+            </a>
+          )}
           {restaurant.googleMapsUrl && (
-            <a className="btn btn--secondary" href={restaurant.googleMapsUrl} target="_blank" rel="noopener noreferrer">
-              View on Google Maps
+            <a className="btn btn--outline" href={restaurant.googleMapsUrl} target="_blank" rel="noopener noreferrer">
+              View on Map<span className="visually-hidden"> (opens Google Maps)</span>
             </a>
           )}
           {onRemove ? (

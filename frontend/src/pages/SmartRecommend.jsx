@@ -13,7 +13,7 @@ import { smartRecommend } from '../services/apiService.js'
 import './SmartRecommend.css'
 
 const LOADING_TEXT = {
-  understanding: "Understanding what you're craving...",
+  understanding: 'Understanding your request...',
   matching: 'Finding the best matches...',
 }
 

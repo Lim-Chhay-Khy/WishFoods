@@ -5,10 +5,17 @@ import { TIME_OPTIONS } from '../data/options.js'
 // call fetch() themselves. If the API address or format changes, this is
 // the only file to update.
 //
-// The address comes from frontend/.env (VITE_API_URL) if it exists,
-// otherwise it defaults to the local Flask server.
+// The ONE place the backend address is set (Stage 7):
+//   development: frontend/.env        VITE_API_URL=http://localhost:5000
+//   production:  the hosting settings  VITE_API_URL=https://<your-backend>.onrender.com
+// "/api" is added for you if it's missing.
 // ---------------------------------------------------------------------
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+export function buildApiUrl(address) {
+  const base = (address || 'http://localhost:5000').trim().replace(/\/+$/, '') // drop trailing "/"
+  return base.endsWith('/api') ? base : `${base}/api`
+}
+
+export const API_URL = buildApiUrl(import.meta.env.VITE_API_URL)
 
 // ----- Login token storage (Stage 4) -----
 // After login, Flask gives us a token (JWT) that proves who the user is.
@@ -72,7 +79,7 @@ async function request(path, { method = 'GET', body, sendToken = true } = {}) {
   } catch {
     // fetch() only throws when there is no response at all
     // (Flask not running, wrong address, no internet...).
-    const error = new Error("Can't reach the MoodBite server. Make sure the Flask backend is running.")
+    const error = new Error("We couldn't connect to the server. Please check your connection and try again.")
     error.status = 0
     throw error
   }
@@ -87,7 +94,10 @@ async function request(path, { method = 'GET', body, sendToken = true } = {}) {
   }
 
   if (!response.ok) {
-    const error = new Error(data.message || data.error || 'Something went wrong on the server.')
+    // Our API always sends a short, friendly "error" message. For server
+    // crashes (500+) we show a generic one instead of anything technical.
+    const friendly = response.status >= 500 ? 'Something went wrong. Please try again.' : data.message || data.error
+    const error = new Error(friendly || 'Something went wrong. Please try again.')
     error.status = response.status
     throw error
   }
@@ -102,20 +112,9 @@ export async function getFoods() {
   return data.foods
 }
 
-// GET /api/foods/:id  ->  food
-export async function getFoodById(id) {
-  const data = await request(`/foods/${id}`)
-  return data.food
-}
-
 // GET /api/foods/:id/recipe  ->  { food, recipe }
 export function getRecipe(id) {
   return request(`/foods/${id}/recipe`)
-}
-
-// GET /api/foods/:id/restaurants  ->  { food, restaurants }
-export function getRestaurants(id) {
-  return request(`/foods/${id}/restaurants`)
 }
 
 // Google charges for every search, so if the SAME search is already on its
@@ -144,12 +143,6 @@ export function getNearbyRestaurants(foodId, search = {}) {
   if (search.near) params.set('near', search.near)
   const query = params.toString()
   return requestOnce(`/foods/${foodId}/nearby${query ? `?${query}` : ''}`)
-}
-
-// GET /api/restaurants  ->  [restaurant, ...]
-export async function getAllRestaurants() {
-  const data = await request('/restaurants')
-  return data.restaurants
 }
 
 // POST /api/recommendations  ->  { recommendations: [...], savedToHistory }

@@ -64,7 +64,7 @@ function ResultsContent({ recommendations, savedToHistory, loading, error, retry
   const navigate = useNavigate()
 
   if (loading) {
-    return <LoadingMessage text="Finding the best meals for you..." />
+    return <LoadingMessage text="Finding meals for you..." />
   }
 
   if (error) {

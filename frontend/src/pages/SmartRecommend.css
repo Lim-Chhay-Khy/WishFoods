@@ -37,3 +37,16 @@
   color: var(--color-primary);
   font-weight: 600;
 }
+
+/* Stage 7: the ingredient page reuses these styles */
+.ingredient-search {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.ingredient-search .preference-selector {
+  margin-bottom: 0;
+}

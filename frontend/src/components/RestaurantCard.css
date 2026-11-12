@@ -91,3 +91,10 @@
   display: inline-flex;
   align-items: center;
 }
+
+.restaurant-card__sample {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-style: italic;
+}

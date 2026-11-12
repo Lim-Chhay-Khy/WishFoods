@@ -36,7 +36,7 @@ export default function Favorites() {
     }
   }
 
-  if (loading && favorites.length === 0) return <LoadingMessage text="Loading favorites..." />
+  if (loading && favorites.length === 0) return <LoadingMessage text="Loading your favorites..." />
   if (error) {
     return (
       <div className="page">
@@ -57,8 +57,8 @@ export default function Favorites() {
         {message && <p className="notice">{message}</p>}
         <EmptyState
           emoji="♡"
-          title="No favorites yet."
-          message="Save foods or restaurants you like and they will appear here."
+          title="You haven't saved anything yet."
+          message="Explore food recommendations and save your favorites here."
         >
           <Button onClick={() => navigate('/mood')}>Discover Food</Button>
         </EmptyState>

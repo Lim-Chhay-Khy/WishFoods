@@ -1,0 +1,30 @@
+# Render "Blueprint": tells Render how to run the Flask backend.
+# Secret values (sync: false) are typed into the Render dashboard, never here.
+services:
+  - type: web
+    name: moodbite-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 2 --timeout 60
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: MONGO_DB_NAME
+        value: Moodbite
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: GOOGLE_PLACES_API_KEY
+        sync: false
+      - key: AI_API_KEY
+        sync: false

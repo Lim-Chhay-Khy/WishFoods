@@ -7,6 +7,8 @@ A document in the "foods" collection looks like this:
     "emoji": "🍛",
     "description": "Quick and filling Asian comfort food...",
     "cuisine": "Asian",
+    "country": "China",                # Stage 7
+    "region": "East Asia",             # Stage 7
     "image_url": None,
     "cooking_time": 25,                # total minutes; None = restaurant-only
     "difficulty": "Easy",
@@ -33,6 +35,8 @@ def food_to_dict(food):
         "emoji": food.get("emoji"),
         "description": food["description"],
         "cuisine": food["cuisine"],
+        "country": food.get("country"),  # Stage 7: for the Discover page
+        "region": food.get("region"),
         "imageUrl": food.get("image_url"),
         "cookingTime": food.get("cooking_time"),
         "difficulty": food["difficulty"],

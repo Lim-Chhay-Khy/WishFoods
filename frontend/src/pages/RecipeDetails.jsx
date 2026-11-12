@@ -28,7 +28,7 @@ export default function RecipeDetails() {
   if (error?.status === 404) {
     return (
       <div className="page">
-        <EmptyState emoji="🔍" title="Recipe not found." message={error.message}>
+        <EmptyState emoji="🔍" title="We couldn't find this recipe." message={error.message}>
           <Button variant="outline" onClick={() => navigate('/recommendations')}>
             Back to Recommendations
           </Button>

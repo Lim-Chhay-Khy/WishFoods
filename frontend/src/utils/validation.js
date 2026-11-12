@@ -46,7 +46,7 @@ export function validateProfile({ name, email }) {
 
 // Turns an error from apiService into a friendly sentence.
 export function friendlyError(error) {
-  if (error.status === 0) return "Can't reach the server. Check that the backend is running."
-  if (error.status >= 500) return 'Something went wrong on our side. Please try again.'
+  if (error.status === 0) return "We couldn't connect to the server."
+  if (error.status >= 500) return 'Something went wrong. Please try again.'
   return error.message
 }

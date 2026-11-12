@@ -22,8 +22,10 @@ function buildItems(prefs) {
   }
   if (prefs.preferences.length > 0) {
     const cravings = prefs.preferences.map((tag) => {
+      const label = labelFor(PREFERENCES, tag)
       const word = prefs.craving_words?.[tag]
-      return word ? `${labelFor(PREFERENCES, tag)} (${word})` : labelFor(PREFERENCES, tag)
+      // Show the user's own word only when it adds something: "Sweet (dessert)", not "Spicy (spicy)".
+      return word && word.toLowerCase() !== label.toLowerCase() ? `${label} (${word})` : label
     })
     items.push({ icon: '🍜', label: 'Craving', value: cravings.join(', ') })
   }

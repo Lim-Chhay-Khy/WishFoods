@@ -58,8 +58,8 @@ export default function RestaurantMap({ center, restaurants, userLocation }) {
             >
               <Pin
                 glyph={String(restaurants.indexOf(restaurant) + 1)}
-                background="#e85d3a"
-                borderColor="#b8432a"
+                background="#c9461f"
+                borderColor="#a63716"
                 glyphColor="#ffffff"
               />
             </AdvancedMarker>

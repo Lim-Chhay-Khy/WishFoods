@@ -18,3 +18,27 @@
   flex-direction: column;
   gap: 4px;
 }
+
+/* Stage 7 */
+.about-page__tech {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.about-page__tech dt {
+  font-weight: 700;
+}
+
+.about-page__tech dd {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.about-page__note {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+}

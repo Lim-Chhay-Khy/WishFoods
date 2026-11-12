@@ -66,8 +66,8 @@ export default function History() {
       <div className="page">
         <EmptyState
           emoji="🕒"
-          title="No history yet."
-          message="Your recommendation sessions will appear here after you try MoodBite while logged in."
+          title="No recommendation history yet."
+          message="Try MoodBite and your previous recommendations will appear here."
         >
           <Button onClick={() => navigate('/mood')}>Find My Food</Button>
         </EmptyState>

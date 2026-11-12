@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Navbar from './components/Navbar.jsx'
+import Footer from './components/Footer.jsx'
+import LoadingMessage from './components/LoadingMessage.jsx'
+import PageTitle from './components/PageTitle.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Home from './pages/Home.jsx'
 import MoodSelect from './pages/MoodSelect.jsx'
@@ -9,7 +12,8 @@ import CookOrRestaurant from './pages/CookOrRestaurant.jsx'
 import Results from './pages/Results.jsx'
 import SmartRecommend from './pages/SmartRecommend.jsx'
 import RecipeDetails from './pages/RecipeDetails.jsx'
-import Restaurants from './pages/Restaurants.jsx'
+import Discover from './pages/Discover.jsx'
+import IngredientSearch from './pages/IngredientSearch.jsx'
 import Favorites from './pages/Favorites.jsx'
 import History from './pages/History.jsx'
 import Profile from './pages/Profile.jsx'
@@ -21,6 +25,11 @@ import { AppProvider } from './context/AppContext.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { FavoritesProvider } from './context/FavoritesContext.jsx'
 
+// The Restaurants page includes the Google Maps library, which is big.
+// lazy() loads that code only when someone opens the page (Stage 7).
+const Restaurants = lazy(() => import('./pages/Restaurants.jsx'))
+
+// Page layout: skip link, Navbar, <main> (the current page), Footer.
 // Providers, from the outside in:
 //   AuthProvider       who is logged in
 //   FavoritesProvider  that user's favorites (needs AuthProvider)
@@ -30,34 +39,46 @@ export default function App() {
     <AuthProvider>
       <FavoritesProvider>
         <AppProvider>
+          <PageTitle />
+          {/* Lets keyboard users jump past the menu */}
+          <a href="#main" className="skip-link">
+            Skip to main content
+          </a>
           <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/mood" element={<MoodSelect />} />
-            <Route path="/preferences" element={<PreferenceSelect />} />
-            <Route path="/choice" element={<CookOrRestaurant />} />
-            <Route path="/recommendations" element={<Results />} />
-            <Route path="/smart-recommend" element={<SmartRecommend />} />
-            <Route path="/recipe/:id" element={<RecipeDetails />} />
-            <Route path="/restaurants/:foodId" element={<Restaurants />} />
-            <Route path="/about" element={<About />} />
+          <main id="main" tabIndex={-1}>
+            <Suspense fallback={<LoadingMessage text="Loading..." />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/discover" element={<Discover />} />
+                <Route path="/ingredients" element={<IngredientSearch />} />
+                <Route path="/mood" element={<MoodSelect />} />
+                <Route path="/preferences" element={<PreferenceSelect />} />
+                <Route path="/choice" element={<CookOrRestaurant />} />
+                <Route path="/recommendations" element={<Results />} />
+                <Route path="/smart-recommend" element={<SmartRecommend />} />
+                <Route path="/recipe/:id" element={<RecipeDetails />} />
+                <Route path="/restaurants/:foodId" element={<Restaurants />} />
+                <Route path="/about" element={<About />} />
 
-            {/* Stage 4: accounts */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+                {/* Stage 4: accounts */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-            {/* Login required — ProtectedRoute sends visitors to /login */}
-            <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
-            <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                {/* Login required — ProtectedRoute sends visitors to /login */}
+                <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+                <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
-            {/* Stage 1 URLs, kept so old links/bookmarks still work */}
-            <Route path="/cook-or-restaurant" element={<Navigate to="/choice" replace />} />
-            <Route path="/results" element={<Navigate to="/recommendations" replace />} />
+                {/* Stage 1 URLs, kept so old links/bookmarks still work */}
+                <Route path="/cook-or-restaurant" element={<Navigate to="/choice" replace />} />
+                <Route path="/results" element={<Navigate to="/recommendations" replace />} />
 
-            {/* Anything else */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+                {/* Anything else */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </main>
+          <Footer />
         </AppProvider>
       </FavoritesProvider>
     </AuthProvider>

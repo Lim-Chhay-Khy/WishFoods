@@ -1,0 +1,85 @@
+.discover__filters {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.discover__regions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.discover__region {
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  min-height: 44px; /* big enough to tap */
+  padding: 8px 16px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.discover__region:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.discover__region.is-selected {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.discover__region:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.discover__count {
+  font-weight: 500;
+}
+
+.discover__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.discover__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.discover__field--grow {
+  flex: 1 1 240px;
+}
+
+.discover__field select,
+.discover__field input {
+  font: inherit;
+  font-weight: 400;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.discover__summary {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.page-header p a {
+  color: var(--color-primary);
+  font-weight: 600;
+}

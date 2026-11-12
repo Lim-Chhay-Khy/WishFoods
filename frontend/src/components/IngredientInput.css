@@ -1,0 +1,100 @@
+.ingredient-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ingredient-input > label {
+  font-weight: 600;
+}
+
+.ingredient-input__box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  min-height: 56px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.ingredient-input__box:focus-within {
+  border-color: var(--color-primary);
+}
+
+.ingredient-input__chips {
+  display: contents; /* chips and the input share one wrapping row */
+  list-style: none;
+}
+
+.ingredient-input__chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff3ec;
+  border-radius: 999px;
+  padding: 4px 4px 4px 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.ingredient-input__chips button {
+  border: none;
+  background: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.ingredient-input__chips button:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.ingredient-input__box input {
+  flex: 1 1 160px;
+  min-width: 0;
+  border: none;
+  font: inherit;
+  padding: 6px 4px;
+  background: transparent;
+  color: var(--color-text);
+}
+
+.ingredient-input__box input:focus {
+  outline: none;
+}
+
+.ingredient-input__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.ingredient-input__suggestions span {
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.ingredient-input__suggestions button {
+  font: inherit;
+  font-size: 0.85rem;
+  min-height: 34px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.ingredient-input__suggestions button:hover {
+  border-color: var(--color-primary);
+}

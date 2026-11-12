@@ -26,6 +26,11 @@ export default function FoodCard({ food, onRemove, cookLabel = 'Cook', restauran
           <h3 className="food-card__name">{food.name}</h3>
           <span className="food-card__price">{food.priceLevel}</span>
         </div>
+        {food.country && (
+          <p className="food-card__origin">
+            <span aria-hidden="true">🌍</span> {food.country} · {food.region}
+          </p>
+        )}
         <p className="food-card__description">{food.description}</p>
 
         <dl className="food-card__meta">

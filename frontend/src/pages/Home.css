@@ -70,3 +70,73 @@
     padding: 22px 18px;
   }
 }
+
+/* ===== Stage 7 ===== */
+.home__surprise {
+  margin-top: 14px;
+  background: none;
+  border: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  min-height: 44px;
+  padding: 0 12px;
+  text-decoration: underline;
+}
+
+.home__surprise:hover {
+  color: var(--color-primary);
+}
+
+.home__features {
+  width: 100%;
+  max-width: var(--max-width);
+}
+
+.home__features h2 {
+  text-align: center;
+  font-size: 1.6rem;
+  margin-bottom: 22px;
+}
+
+.home__features ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.home__feature {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.home__feature:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-primary);
+}
+
+.home__feature-icon {
+  font-size: 1.8rem;
+}
+
+.home__feature-title {
+  font-weight: 700;
+}
+
+.home__feature-text {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}

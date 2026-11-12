@@ -1,11 +1,14 @@
 """
-MoodBite Flask API.  Start it with:  python app.py
-Then open http://localhost:5000/api/foods in your browser.
+MoodBite Flask API.
+
+  Development:  python app.py           (then open http://localhost:5000/api/health)
+  Production:   gunicorn app:app        (a real web server; see docs/DEPLOYMENT.md)
 """
 
 from flask import Flask, jsonify
 from flask_cors import CORS
 from pymongo.errors import PyMongoError
+from werkzeug.exceptions import HTTPException
 
 from config import Config
 from database import create_indexes
@@ -36,10 +39,14 @@ app.config.from_object(Config)
 app.json.sort_keys = False
 app.json.ensure_ascii = False
 
-# CORS: the browser blocks a page on localhost:5173 (React) from reading
-# responses from localhost:5000 (Flask) unless Flask says it's allowed.
-# This allows ONLY our React app to call /api/... routes.
-CORS(app, resources={r"/api/*": {"origins": Config.FRONTEND_URL}})
+# Refuse request bodies bigger than 100 KB. Our biggest real request is a
+# short sentence, so anything huge is a mistake or an attack (error 413).
+app.config["MAX_CONTENT_LENGTH"] = 100 * 1024
+
+# CORS: the browser blocks a page on one address (the React site) from
+# reading responses from another (this API) unless the API allows it.
+# We allow ONLY our own site(s), listed in FRONTEND_URL, never "*" (anyone).
+CORS(app, resources={r"/api/*": {"origins": Config.FRONTEND_URLS}})
 
 # Add the routes from each routes/ file.
 app.register_blueprint(food_routes)
@@ -51,6 +58,15 @@ app.register_blueprint(history_routes)  # Stage 4
 app.register_blueprint(profile_routes)  # Stage 4
 app.register_blueprint(places_routes)  # Stage 5
 app.register_blueprint(ai_routes)  # Stage 6
+
+# Small safety headers on every response.
+@app.after_request
+def add_security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"  # don't guess file types
+    response.headers["X-Frame-Options"] = "DENY"  # don't allow the API inside other sites' frames
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
 
 # Make sure the indexes exist (unique emails, no duplicate favorites).
 # If MongoDB can't be reached yet, start anyway — the database error
@@ -74,6 +90,11 @@ def not_found(error):
     return jsonify({"error": "Route not found"}), 404
 
 
+@app.errorhandler(403)
+def forbidden(error):
+    return jsonify({"error": "You don't have permission to do that"}), 403
+
+
 @app.errorhandler(405)
 def method_not_allowed(error):
     return jsonify({"error": "This route doesn't accept that HTTP method"}), 405
@@ -91,7 +112,17 @@ def server_error(error):
     return jsonify({"error": "Something went wrong on the server"}), 500
 
 
+@app.errorhandler(Exception)
+def unexpected_error(error):
+    """Any other crash: log the details for us, but send the user only a
+    short message. Never send stack traces or database details."""
+    if isinstance(error, HTTPException):  # e.g. 400/404 raised by Flask itself
+        return jsonify({"error": error.description}), error.code
+    app.logger.exception("Unexpected error: %s", error)
+    return jsonify({"error": "Something went wrong on the server"}), 500
+
+
 if __name__ == "__main__":
     # debug=True restarts the server when you save a file and shows
     # detailed errors. Turn it off before deploying.
-    app.run(port=Config.PORT, debug=True)
+    app.run(port=Config.PORT, debug=Config.DEBUG)

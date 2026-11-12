@@ -1,9 +1,17 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Button from '../components/Button.jsx'
 import SmartInput from '../components/SmartInput.jsx'
 import { useAppContext } from '../context/AppContext.jsx'
 import './Home.css'
+
+const FEATURES = [
+  { icon: '😊', title: 'Mood Recommendations', text: 'Answer a few quick questions about your mood and cravings.', to: '/mood' },
+  { icon: '🧺', title: 'Ingredient Matching', text: 'Tell us what you have and get recipes that use it.', to: '/ingredients' },
+  { icon: '📖', title: 'Recipes', text: 'Step-by-step instructions, times and costs for every dish you can cook.', to: '/discover' },
+  { icon: '🌍', title: 'Global Food Discovery', text: 'Browse dishes from nine regions of the world.', to: '/discover' },
+  { icon: '📍', title: 'Real Nearby Restaurants', text: 'Find places near you that serve your dish, on a map.', to: '/discover' },
+]
 
 export default function Home() {
   const navigate = useNavigate()
@@ -22,7 +30,7 @@ export default function Home() {
     navigate('/recommendations')
   }
 
-  // Stage 6: send the typed message to the Smart Recommend page.
+  // Send the typed message to the Smart Recommend page.
   function handleSmartSubmit(text) {
     if (!text.trim()) {
       setInputError('Please type what you feel like eating.')
@@ -33,26 +41,46 @@ export default function Home() {
 
   return (
     <div className="home">
-      <div className="home__hero fade-in">
-        <span className="home__eyebrow">🍲</span>
-        <h1 className="home__heading">What do you feel like eating today?</h1>
-        <p className="home__subtitle">Tell us how you feel and MoodBite will help you decide.</p>
+      <section className="home__hero fade-in" aria-labelledby="home-title">
+        <span className="home__eyebrow" aria-hidden="true">🍲</span>
+        <h1 id="home-title" className="home__heading">Can't decide what to eat?</h1>
+        <p className="home__subtitle">
+          MoodBite helps you discover meals based on your mood, ingredients, budget, time and cravings.
+        </p>
         <div className="home__actions">
-          <Button onClick={handleQuickQuestions}>Quick Questions</Button>
-          <Button variant="secondary" onClick={() => navigate('/smart-recommend')}>
+          <Button onClick={handleQuickQuestions}>Find My Food</Button>
+          <Button variant="secondary" onClick={() => navigate('/ingredients')}>
+            Use My Ingredients
+          </Button>
+          <Button variant="outline" onClick={() => navigate('/smart-recommend')}>
             Tell MoodBite
           </Button>
-          <Button variant="outline" onClick={handleSurpriseMe}>
-            Surprise Me
-          </Button>
         </div>
-      </div>
+        <button type="button" className="home__surprise" onClick={handleSurpriseMe}>
+          or just surprise me 🎲
+        </button>
+      </section>
 
       <section className="home__smart fade-in" aria-labelledby="home-smart-title">
         <h2 id="home-smart-title">Tell MoodBite what you feel like eating</h2>
         <p>Describe your mood, budget, time, cravings, or dietary needs in your own words.</p>
         <SmartInput value={message} onChange={(text) => { setMessage(text); setInputError('') }}
           onSubmit={handleSmartSubmit} error={inputError} showExamples={false} />
+      </section>
+
+      <section className="home__features" aria-labelledby="home-features-title">
+        <h2 id="home-features-title">What MoodBite can do</h2>
+        <ul>
+          {FEATURES.map((feature) => (
+            <li key={feature.title}>
+              <Link to={feature.to} className="home__feature">
+                <span className="home__feature-icon" aria-hidden="true">{feature.icon}</span>
+                <span className="home__feature-title">{feature.title}</span>
+                <span className="home__feature-text">{feature.text}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   )

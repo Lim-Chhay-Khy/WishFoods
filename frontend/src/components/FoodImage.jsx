@@ -13,7 +13,7 @@ export default function FoodImage({ src, emoji, alt, size = 'card' }) {
   return (
     <div className={`food-image food-image--${size}`}>
       {showPhoto ? (
-        <img src={src} alt={alt} onError={() => setFailed(true)} />
+        <img src={src} alt={alt} loading="lazy" decoding="async" onError={() => setFailed(true)} />
       ) : (
         <span className="food-image__emoji" role="img" aria-label={alt}>
           {emoji || '🍽'}

@@ -76,7 +76,7 @@ export default function Restaurants() {
 
       <LocationBar statusText={statusText} onSearchCity={searchCity} onUseLocation={locateUser} busy={busy} />
 
-      {busy && <LoadingMessage text={search ? 'Finding restaurants...' : 'Finding your location...'} />}
+      {busy && <LoadingMessage text={search ? 'Finding restaurants near you...' : 'Finding your location...'} />}
       {!busy && error && <ErrorMessage title="Sorry, we couldn't load restaurants." error={error} onRetry={retry} />}
       {!busy && data && <RestaurantResults data={data} userLocation={search?.lat !== undefined ? search : null} />}
     </div>
@@ -93,7 +93,8 @@ function RestaurantResults({ data, userLocation }) {
       {message && <p className="notice">{message}</p>}
 
       {restaurants.length === 0 ? (
-        <EmptyState emoji="🍽" title="No restaurant suggestions are available for this food here." />
+        <EmptyState emoji="🍽" title="No matching restaurants were found nearby."
+          message="Try searching another city, or go back and choose a different dish." />
       ) : (
         <>
           {onMap && <RestaurantMap center={center} restaurants={restaurants} userLocation={userLocation} />}

@@ -27,7 +27,7 @@ gets the CLOSEST foods, even if nothing ticks every box.
 
 from models import food_to_dict
 from services.explanation_service import build_explanation, build_popular_explanation
-from services.nlp_service import food_is_dish, recipe_uses
+from services.nlp_service import food_is_dish, food_matches_cuisine, recipe_uses
 
 POINTS = {
     "mood": 3,
@@ -171,7 +171,7 @@ def score_food(food, answers):
         score += POINTS["dietary"]  # always true here, because of Step 1
 
     # Stage 6 extras
-    cuisine_match = bool(answers["cuisine"]) and food["cuisine"] == answers["cuisine"]
+    cuisine_match = bool(answers["cuisine"]) and food_matches_cuisine(food, answers["cuisine"])
     matched_dishes = [dish for dish in answers["dishes"] if food_is_dish(food, dish)]
     matched_ingredients = [item for item in answers["ingredients"] if recipe_uses(food, item)]
     if cuisine_match:

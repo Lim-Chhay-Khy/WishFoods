@@ -5,7 +5,7 @@
 // never saved.
 
 const ERROR_MESSAGES = {
-  1: 'Location permission was blocked, so we can’t find restaurants near you.',
+  1: 'Location permission was denied.',
   2: 'Your location isn’t available right now.',
   3: 'Finding your location took too long.',
 }
